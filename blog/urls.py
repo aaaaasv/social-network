@@ -7,5 +7,6 @@ router.register(r'posts', views.PostViewSet)
 
 urlpatterns = [
     path('', include(router.urls)),
-    path('posts/<int:post_id>/like/', views.LikeView.as_view())
+    path('posts/<int:post_id>/like/', views.LikeView.as_view()),
+    path('users/<int:user_id>/analytics/', views.LikeAnalyticsView.as_view())
 ]

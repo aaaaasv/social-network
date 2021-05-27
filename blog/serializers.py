@@ -16,3 +16,8 @@ class PostSerializer(serializers.HyperlinkedModelSerializer):
         )
 
         return post
+
+
+class LikeAnalyticsSerializer(serializers.Serializer):
+    day = serializers.DateTimeField()
+    count = serializers.IntegerField()
