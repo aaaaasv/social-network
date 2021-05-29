@@ -1,11 +1,10 @@
 from django.test import TestCase
 from django.urls import reverse
 from rest_framework import status
-from rest_framework.request import Request
-from rest_framework.test import APIClient, force_authenticate, APIRequestFactory
+from rest_framework.test import APIClient, APIRequestFactory
 from django.contrib.auth import get_user_model
 
-from accounts.serializers import UserSerializer, UserActivitySerializer
+from accounts.serializers import UserSerializer
 
 User = get_user_model()
 
@@ -66,7 +65,7 @@ class AuthViewsTestCase(TestCase):
         self.assertEqual(response_verification.status_code, status.HTTP_200_OK)
 
 
-class UsersTestCase(TestCase):
+class SetUpTestCase(TestCase):
     fixtures = ['user-data.json']
 
     def obtain_token_pair(self, user_data):
@@ -86,12 +85,15 @@ class UsersTestCase(TestCase):
             'username': 'myname3',
             'password': 'development'
         }
-
+        self.user_id = User.objects.get(username=self.login_data['username'])
         self.client_authorized_admin.credentials(
             HTTP_AUTHORIZATION='Bearer ' + self.obtain_token_pair(self.login_data_admin).data['access'])
 
         self.client_authorized.credentials(
             HTTP_AUTHORIZATION='Bearer ' + self.obtain_token_pair(self.login_data).data['access'])
+
+
+class UsersTestCase(SetUpTestCase):
 
     def test_get_all_users_fail_unauthorized(self):
         response = self.client.get(reverse('user-list'))
