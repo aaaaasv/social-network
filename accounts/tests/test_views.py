@@ -108,7 +108,7 @@ class UsersTestCase(SetUpTestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
         users = User.objects.all()
-        serializer = UserSerializer(reversed(users), many=True, context={'request': factory.get(reverse('user-list'))})
+        serializer = UserSerializer(users, many=True, context={'request': factory.get(reverse('user-list'))})
 
         self.assertSequenceEqual(response.data, serializer.data)
 
