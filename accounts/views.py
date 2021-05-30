@@ -2,7 +2,7 @@ from django.contrib.auth import get_user_model
 from rest_framework import (
     viewsets,
     permissions,
-    generics
+    generics,
 )
 
 from .serializers import (
@@ -13,16 +13,23 @@ from .serializers import (
 User = get_user_model()
 
 
-class CreateUserPermission(permissions.IsAdminUser):
+class IsOwnerOrAdminPermission(permissions.IsAuthenticated):
     """
-    Allow everyone to create users and only admins to view the list of users.
+    Allows authenticated users to view and edit their information.
+    Allow admins to view and edit every user information.
     """
 
     def has_permission(self, request, view):
         if request.method in ['POST']:
             return True
 
-        return super(CreateUserPermission, self).has_permission(request, view)
+        return super(IsOwnerOrAdminPermission, self).has_permission(request, view)
+
+    def has_object_permission(self, request, view, obj):
+        if (request.user and request.user.is_staff) or \
+                (request.user and request.user.is_authenticated and request.user == obj):
+            return True
+        return request.method in permissions.SAFE_METHODS
 
 
 class UserViewSet(viewsets.ModelViewSet):
@@ -31,7 +38,7 @@ class UserViewSet(viewsets.ModelViewSet):
     """
     queryset = User.objects.all()
     serializer_class = UserSerializer
-    permission_classes = [CreateUserPermission]
+    permission_classes = [IsOwnerOrAdminPermission]
 
 
 class UserActivityView(generics.RetrieveAPIView):

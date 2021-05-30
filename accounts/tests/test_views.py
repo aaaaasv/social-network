@@ -85,7 +85,7 @@ class SetUpTestCase(TestCase):
             'username': 'myname3',
             'password': 'development'
         }
-        self.user_id = User.objects.get(username=self.login_data['username'])
+        self.user_id = User.objects.get(username=self.login_data['username']).id
         self.client_authorized_admin.credentials(
             HTTP_AUTHORIZATION='Bearer ' + self.obtain_token_pair(self.login_data_admin).data['access'])
 
@@ -99,12 +99,8 @@ class UsersTestCase(SetUpTestCase):
         response = self.client.get(reverse('user-list'))
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
-    def test_get_all_users_fail_forbidden(self):
-        response = self.client_authorized.get(reverse('user-list'))
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
-
-    def test_get_all_users_success(self):
-        response = self.client_authorized_admin.get(reverse('user-list'), format='json')
+    def test_get_all_users_success_authorized(self):
+        response = self.client_authorized.get(reverse('user-list'), format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
         users = User.objects.all()
@@ -116,33 +112,49 @@ class UsersTestCase(SetUpTestCase):
         response = self.client.get(reverse('user-detail', kwargs={'pk': User.objects.all().first().id}))
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
-    def test_get_one_user_fail_forbidden(self):
-        response = self.client_authorized.get(reverse('user-detail', kwargs={'pk': User.objects.all().first().id}))
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
-
-    def test_get_one_user_success(self):
-        user = User.objects.all().first()
-        response = self.client_authorized_admin.get(reverse('user-detail', kwargs={'pk': user.id}))
+    def test_get_one_user_success_authorized(self):
+        user = User.objects.first()
+        response = self.client_authorized.get(reverse('user-detail', kwargs={'pk': user.id}))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-
+        self.assertIn('username', response.data)
         self.assertEqual(response.data['id'], user.id)
 
-    def test_delete_user(self):
-        user = User.objects.all().first()
+    def test_update_user_fail_forbidden_not_owner(self):
+        user = User.objects.first()
         user_id = user.id
-        response = self.client_authorized_admin.delete(reverse('user-detail', kwargs={'pk': user_id}))
+        self.assertNotEqual(self.user_id, user_id)
+        response = self.client_authorized.put(reverse('user-detail', kwargs={'pk': user_id}),
+                                              {'first_name': 'Newname'})
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_update_user_success_owner(self):
+        user_id = self.user_id
+        new_first_name = 'Newname'
+        self.assertNotEqual(User.objects.get(id=user_id).first_name, new_first_name)
+        response = self.client_authorized.put(reverse('user-detail', kwargs={'pk': user_id}),
+                                              {'first_name': new_first_name})
+
+        self.assertNotIn('password', response.data)
+        self.assertNotIn('username', response.data)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(User.objects.get(id=user_id).first_name, new_first_name)
+
+    def test_delete_user_success_owner(self):
+        user_id = self.user_id
+        response = self.client_authorized.delete(reverse('user-detail', kwargs={'pk': user_id}))
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
         with self.assertRaises(User.DoesNotExist):
             User.objects.get(id=user_id)
 
     def test_delete_user_fail_unauthorized(self):
-        user = User.objects.all().first()
+        user = User.objects.first()
         user_id = user.id
         response = self.client.delete(reverse('user-detail', kwargs={'pk': user_id}))
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
-    def test_delete_user_fail_forbidden(self):
-        user = User.objects.all().first()
+    def test_delete_user_fail_forbidden_not_owner(self):
+        user = User.objects.first()
         user_id = user.id
         response = self.client_authorized.delete(reverse('user-detail', kwargs={'pk': user_id}))
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)

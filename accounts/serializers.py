@@ -26,6 +26,14 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
 
         return user
 
+    def get_fields(self):
+        fields = super(UserSerializer, self).get_fields()
+        request = self.context.get('request', None)
+        if request and getattr(request, 'method', None) in ['PUT', 'PATCH']:
+            fields.pop('password')
+            fields.pop('username')
+        return fields
+
 
 class UserActivitySerializer(serializers.ModelSerializer):
     class Meta:
