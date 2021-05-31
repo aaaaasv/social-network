@@ -1,28 +1,61 @@
 <!DOCTYPE html>
 <html>
-  <head>
+<head>
     <title>Social Network API</title>
     <meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" type="text/css" href="//unpkg.com/swagger-ui-dist@3/swagger-ui.css" />
-  </head>
-  <body>
-    <div id="swagger-ui"></div>
-    <script src="//unpkg.com/swagger-ui-dist@3/swagger-ui-bundle.js"></script>
-    <script>
+    <link rel="stylesheet" type="text/css" href="//unpkg.com/swagger-ui-dist@3/swagger-ui.css"/>
+</head>
+<body>
+<style>
+    .nav-auth {
+        font-family: Roboto, sans-serif;
+        text-decoration: none;
+        color: black;
+        width: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+    .nav-auth a:visited, .nav-auth a {
+        color:black;
+        text-decoration: none;
+    }
+
+    .login-btn {
+        border: 1px solid black;
+        border-radius: 30px;
+        padding: 10px 50px;
+        transition: .3s;
+    }
+    .login-btn:hover {
+        background-color: #49CC90;
+        color:white;
+        border-color:white;
+    }
+</style>
+<div class="nav-auth">
+    <a href="{% url 'rest_framework:login' %}">
+        <p class="login-btn">Login</p>
+    </a>
+</div>
+<div id="swagger-ui"></div>
+
+<script src="//unpkg.com/swagger-ui-dist@3/swagger-ui-bundle.js"></script>
+<script>
     const ui = SwaggerUIBundle({
         url: "{% url schema_url %}",
         dom_id: '#swagger-ui',
         presets: [
-          SwaggerUIBundle.presets.apis,
-          SwaggerUIBundle.SwaggerUIStandalonePreset
+            SwaggerUIBundle.presets.apis,
+            SwaggerUIBundle.SwaggerUIStandalonePreset
         ],
         layout: "BaseLayout",
         requestInterceptor: (request) => {
-          request.headers['X-CSRFToken'] = "{{ csrf_token }}"
-          return request;
+            request.headers['X-CSRFToken'] = "{{ csrf_token }}"
+            return request;
         }
-      })
-    </script>
-  </body>
+    })
+</script>
+</body>
 </html>
