@@ -1,11 +1,15 @@
-from django.urls import reverse
-from rest_framework import status
-from rest_framework.test import APIRequestFactory
-from django.contrib.auth import get_user_model
+from datetime import datetime
+import pytz
 
-from blog.models import Post, Like
-from blog.serializers import PostSerializer
+from django.contrib.auth import get_user_model
+from django.urls import reverse
+from rest_framework.test import APIRequestFactory
+from rest_framework import status
+
 from accounts.tests.test_views import SetUpTestCase
+from blog.models import Post, Like
+from blog.views import LikeAnalyticsView
+from blog.serializers import PostSerializer
 
 User = get_user_model()
 
@@ -78,3 +82,13 @@ class PostTestCase(SetUpTestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertFalse(self.is_post_liked(user_id=self.user_id, post_id=2))
         self.assertEqual(response.data, 'Not liked')
+
+
+class LikeAnalyticsTestCase(SetUpTestCase):
+    fixtures = SetUpTestCase.fixtures + ['post-data.json']
+
+    def test_like_count_by_days(self):
+        v = LikeAnalyticsView(kwargs={'user_id': 2})
+        result = v.get_queryset()
+        self.assertEqual(result.get(day=datetime(2020, 12, 25, 0, 0, tzinfo=pytz.UTC))['count'], 2)
+        self.assertEqual(result.get(day=datetime(2019, 3, 12, 0, 0, tzinfo=pytz.UTC))['count'], 1)
