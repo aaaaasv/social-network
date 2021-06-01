@@ -38,18 +38,18 @@ class LikeView(views.APIView):
     """
     permission_classes = [permissions.IsAuthenticated]
 
-    def get(self, request, post_id, format=None):
+    def get(self, request, post_id):
         try:
             Like.objects.get(user=request.user, post=Post.objects.get(id=post_id))
             return Response('Liked')
         except Like.DoesNotExist:
             return Response('Not liked')
 
-    def put(self, request, post_id, format=None):
+    def post(self, request, post_id):
         Like.objects.get_or_create(user=request.user, post=Post.objects.get(id=post_id))
         return Response("OK")
 
-    def delete(self, request, post_id, format=None):
+    def delete(self, request, post_id):
         try:
             Like.objects.get(user=request.user, post=Post.objects.get(id=post_id)).delete()
         except Like.DoesNotExist:

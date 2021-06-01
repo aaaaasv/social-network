@@ -51,11 +51,11 @@ class PostTestCase(SetUpTestCase):
         self.assertEqual(self.post_text, Post.objects.get(id=response.data['id']).text)
 
     def test_post_add_like_fail_unauthorized(self):
-        response = self.client.put(reverse('post-like', kwargs={'post_id': 1}))
+        response = self.client.post(reverse('post-like', kwargs={'post_id': 1}))
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
     def test_post_add_like_success(self):
-        response = self.client_authorized.put(reverse('post-like', kwargs={'post_id': 2}))
+        response = self.client_authorized.post(reverse('post-like', kwargs={'post_id': 2}))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertTrue(self.is_post_liked(user_id=self.user_id, post_id=2))
         self.assertEqual(response.data, 'OK')
