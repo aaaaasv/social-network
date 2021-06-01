@@ -8,7 +8,7 @@ This project is a simple web application with REST API for creating, reading, up
 
 * [Python 3.8](https://www.python.org/)
 * [Django 3.2](https://www.djangoproject.com/)
-* [PostgresSQL 13.2](https://www.postgresql.org/)
+* [PostgreSQL 13.2](https://www.postgresql.org/)
 
 ## Setup
 
@@ -37,8 +37,9 @@ venv/Scripts/activate
 ```
 Note the `(venv)` in front of the prompt.
 
-4. Once `pip` has finished downloading the dependencies, run the server:
+4. Once `pip` has finished downloading the dependencies, apply migrations and run the server:
 ```sh
+(venv)$ python manage.py migrate
 (venv)$ python manage.py runserver
 ```
 And navigate to `http://127.0.0.1:8000`.
@@ -80,5 +81,5 @@ The application supports JSON Web Tokens:
 ## Tests
 
 ```
-(venv) python manage.py test
+(venv)$ python manage.py test
 ```
