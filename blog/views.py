@@ -1,6 +1,8 @@
 from django.db.models import Count
 from django.db.models.functions import TruncDay
 from django_filters import rest_framework as filters
+from django.utils.decorators import method_decorator
+from django.views.decorators.cache import cache_page
 from rest_framework import viewsets
 from rest_framework import permissions
 from rest_framework import views
@@ -30,6 +32,10 @@ class PostViewSet(viewsets.ModelViewSet):
     queryset = Post.objects.all().order_by('-created_at')
     serializer_class = PostSerializer
     permission_classes = [permissions.IsAuthenticated, IsPostOwnerPermission]
+
+    @method_decorator(cache_page(60 * 60))
+    def list(self, *args, **kwargs):
+        return super(PostViewSet, self).list(*args, **kwargs)
 
 
 class LikeView(views.APIView):

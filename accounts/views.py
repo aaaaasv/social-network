@@ -1,4 +1,6 @@
 from django.contrib.auth import get_user_model
+from django.utils.decorators import method_decorator
+from django.views.decorators.cache import cache_page
 from rest_framework import (
     viewsets,
     permissions,
@@ -39,6 +41,10 @@ class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
     permission_classes = [IsOwnerOrAdminPermission]
+
+    @method_decorator(cache_page(60 * 60 * 2))
+    def list(self, *args, **kwargs):
+        return super(UserViewSet, self).list(*args, **kwargs)
 
 
 class UserActivityView(generics.RetrieveAPIView):
