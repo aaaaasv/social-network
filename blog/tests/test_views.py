@@ -38,7 +38,7 @@ class PostTestCase(SetUpTestCase):
         posts = Post.objects.all()
         serializer = PostSerializer(reversed(posts), many=True, context={'request': factory.get(reverse('post-list'))})
 
-        self.assertSequenceEqual(response.data, serializer.data)
+        self.assertSequenceEqual(response.data.get('results'), serializer.data)
 
     def test_create_post_fail_unauthorized(self):
         response = self.client.post(reverse('post-list'), {'text': self.post_text})

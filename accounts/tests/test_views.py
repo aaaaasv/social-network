@@ -105,8 +105,7 @@ class UsersTestCase(SetUpTestCase):
 
         users = User.objects.all()
         serializer = UserSerializer(users, many=True, context={'request': factory.get(reverse('user-list'))})
-
-        self.assertSequenceEqual(response.data, serializer.data)
+        self.assertEqual(response.data.get('results'), serializer.data)
 
     def test_get_one_user_fail_unauthorized(self):
         response = self.client.get(reverse('user-detail', kwargs={'pk': User.objects.all().first().id}))
