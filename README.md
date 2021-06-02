@@ -44,6 +44,11 @@ Note the `(venv)` in front of the prompt.
 ```
 And navigate to `http://127.0.0.1:8000`.
 
+Note: Use the --insecure option to force serving of static files.  [This is only intended for local development](https://docs.djangoproject.com/en/3.2/ref/contrib/staticfiles/#cmdoption-runserver-insecure):
+```sh
+(venv)$ python manage.py runserver --insecure
+```
+
 ### Configuration
 
 The default database used is SQLite, but you can change it simply by adding these settings to your environment variables:
